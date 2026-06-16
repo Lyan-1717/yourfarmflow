@@ -21,6 +21,7 @@ export type Database = {
           crop_id: string | null
           id: string
           notes: string | null
+          project_id: string | null
           type: string
           user_id: string
         }
@@ -30,6 +31,7 @@ export type Database = {
           crop_id?: string | null
           id?: string
           notes?: string | null
+          project_id?: string | null
           type: string
           user_id: string
         }
@@ -39,6 +41,7 @@ export type Database = {
           crop_id?: string | null
           id?: string
           notes?: string | null
+          project_id?: string | null
           type?: string
           user_id?: string
         }
@@ -50,6 +53,13 @@ export type Database = {
             referencedRelation: "crops"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "activities_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
         ]
       }
       crops: {
@@ -59,6 +69,7 @@ export type Database = {
           id: string
           name: string
           planting_date: string | null
+          project_id: string | null
           status: string
           updated_at: string
           user_id: string
@@ -69,6 +80,7 @@ export type Database = {
           id?: string
           name: string
           planting_date?: string | null
+          project_id?: string | null
           status?: string
           updated_at?: string
           user_id: string
@@ -79,11 +91,20 @@ export type Database = {
           id?: string
           name?: string
           planting_date?: string | null
+          project_id?: string | null
           status?: string
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "crops_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       expenses: {
         Row: {
@@ -92,6 +113,7 @@ export type Database = {
           created_at: string
           expense_date: string
           id: string
+          project_id: string | null
           title: string
           user_id: string
         }
@@ -101,6 +123,7 @@ export type Database = {
           created_at?: string
           expense_date?: string
           id?: string
+          project_id?: string | null
           title: string
           user_id: string
         }
@@ -110,10 +133,19 @@ export type Database = {
           created_at?: string
           expense_date?: string
           id?: string
+          project_id?: string | null
           title?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "expenses_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       farms: {
         Row: {
@@ -151,6 +183,7 @@ export type Database = {
           created_at: string
           id: string
           income_date: string
+          project_id: string | null
           source: string
           user_id: string
         }
@@ -159,6 +192,7 @@ export type Database = {
           created_at?: string
           id?: string
           income_date?: string
+          project_id?: string | null
           source: string
           user_id: string
         }
@@ -167,7 +201,46 @@ export type Database = {
           created_at?: string
           id?: string
           income_date?: string
+          project_id?: string | null
           source?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "income_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      projects: {
+        Row: {
+          created_at: string
+          id: string
+          location: string | null
+          name: string
+          type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          location?: string | null
+          name: string
+          type?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          location?: string | null
+          name?: string
+          type?: string
+          updated_at?: string
           user_id?: string
         }
         Relationships: []
