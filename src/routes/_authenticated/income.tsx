@@ -10,6 +10,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { formatDate, formatRWF } from "@/lib/format";
+import { useCurrentProjectId } from "@/lib/current-project";
+import { NoProject } from "@/components/no-project";
 
 export const Route = createFileRoute("/_authenticated/income")({
   head: () => ({ meta: [{ title: "Income — YourFarmFlow" }] }),
@@ -18,14 +20,18 @@ export const Route = createFileRoute("/_authenticated/income")({
 
 function IncomePage() {
   const qc = useQueryClient();
+  const projectId = useCurrentProjectId();
   const { data: items = [] } = useQuery({
-    queryKey: ["income"],
-    queryFn: async () => (await supabase.from("income").select("*").order("income_date", { ascending: false })).data ?? [],
+    enabled: !!projectId,
+    queryKey: ["income", projectId],
+    queryFn: async () => (await supabase.from("income").select("*").eq("project_id", projectId!).order("income_date", { ascending: false })).data ?? [],
   });
 
   const [source, setSource] = useState("");
   const [amount, setAmount] = useState("");
   const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
+
+  if (!projectId) return <NoProject label="income" />;
 
   const total = items.reduce((s: number, r: any) => s + Number(r.amount), 0);
 
@@ -35,7 +41,7 @@ function IncomePage() {
     if (!amt || amt <= 0) return toast.error("Enter a valid amount");
     const { data: u } = await supabase.auth.getUser();
     const { error } = await supabase.from("income").insert({
-      source, amount: amt, income_date: date, user_id: u.user!.id,
+      source, amount: amt, income_date: date, user_id: u.user!.id, project_id: projectId,
     });
     if (error) return toast.error(error.message);
     toast.success("Income added");
@@ -55,7 +61,7 @@ function IncomePage() {
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h2 className="text-2xl font-bold">Income</h2>
-          <p className="text-muted-foreground text-sm">Record sales and other farm income.</p>
+          <p className="text-muted-foreground text-sm">Record sales and other income.</p>
         </div>
         <div className="text-right">
           <p className="text-xs text-muted-foreground">Total earned</p>

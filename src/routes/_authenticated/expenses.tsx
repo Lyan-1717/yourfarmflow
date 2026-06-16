@@ -10,6 +10,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { formatDate, formatRWF } from "@/lib/format";
+import { useCurrentProjectId } from "@/lib/current-project";
+import { NoProject } from "@/components/no-project";
 
 export const Route = createFileRoute("/_authenticated/expenses")({
   head: () => ({ meta: [{ title: "Expenses — YourFarmFlow" }] }),
@@ -18,15 +20,19 @@ export const Route = createFileRoute("/_authenticated/expenses")({
 
 function ExpensesPage() {
   const qc = useQueryClient();
+  const projectId = useCurrentProjectId();
   const { data: items = [] } = useQuery({
-    queryKey: ["expenses"],
-    queryFn: async () => (await supabase.from("expenses").select("*").order("expense_date", { ascending: false })).data ?? [],
+    enabled: !!projectId,
+    queryKey: ["expenses", projectId],
+    queryFn: async () => (await supabase.from("expenses").select("*").eq("project_id", projectId!).order("expense_date", { ascending: false })).data ?? [],
   });
 
   const [title, setTitle] = useState("");
   const [amount, setAmount] = useState("");
   const [category, setCategory] = useState("");
   const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
+
+  if (!projectId) return <NoProject label="expenses" />;
 
   const total = items.reduce((s: number, r: any) => s + Number(r.amount), 0);
 
@@ -36,7 +42,8 @@ function ExpensesPage() {
     if (!amt || amt <= 0) return toast.error("Enter a valid amount");
     const { data: u } = await supabase.auth.getUser();
     const { error } = await supabase.from("expenses").insert({
-      title, amount: amt, category: category || null, expense_date: date, user_id: u.user!.id,
+      title, amount: amt, category: category || null, expense_date: date,
+      user_id: u.user!.id, project_id: projectId,
     });
     if (error) return toast.error(error.message);
     toast.success("Expense added");
