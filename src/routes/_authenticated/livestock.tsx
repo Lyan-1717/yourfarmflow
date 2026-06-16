@@ -75,7 +75,7 @@ function LivestockPage() {
     const { data: u } = await supabase.auth.getUser();
     const { error } = await supabase.from("livestock").insert({
       user_id: u.user!.id,
-      project_id: projectId,
+      project_id: projectId!,
       name,
       animal_type: animalType,
       breed: breed || null,
@@ -103,7 +103,7 @@ function LivestockPage() {
     const { data: u } = await supabase.auth.getUser();
     const { error } = await supabase.from("livestock_activities").insert({
       user_id: u.user!.id,
-      project_id: projectId,
+      project_id: projectId!,
       livestock_id: aGroup === "none" ? null : aGroup,
       type: aType,
       activity_date: aDate,
