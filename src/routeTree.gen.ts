@@ -15,6 +15,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedFarmRouteImport } from './routes/_authenticated/farm'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedCropsRouteImport } from './routes/_authenticated/crops'
+import { Route as AuthenticatedActivitiesRouteImport } from './routes/_authenticated/activities'
 
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
@@ -45,10 +46,16 @@ const AuthenticatedCropsRoute = AuthenticatedCropsRouteImport.update({
   path: '/crops',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedActivitiesRoute = AuthenticatedActivitiesRouteImport.update({
+  id: '/activities',
+  path: '/activities',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/activities': typeof AuthenticatedActivitiesRoute
   '/crops': typeof AuthenticatedCropsRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/farm': typeof AuthenticatedFarmRoute
@@ -56,6 +63,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/activities': typeof AuthenticatedActivitiesRoute
   '/crops': typeof AuthenticatedCropsRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/farm': typeof AuthenticatedFarmRoute
@@ -65,20 +73,22 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/_authenticated/activities': typeof AuthenticatedActivitiesRoute
   '/_authenticated/crops': typeof AuthenticatedCropsRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/farm': typeof AuthenticatedFarmRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/crops' | '/dashboard' | '/farm'
+  fullPaths: '/' | '/auth' | '/activities' | '/crops' | '/dashboard' | '/farm'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/crops' | '/dashboard' | '/farm'
+  to: '/' | '/auth' | '/activities' | '/crops' | '/dashboard' | '/farm'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/_authenticated/activities'
     | '/_authenticated/crops'
     | '/_authenticated/dashboard'
     | '/_authenticated/farm'
@@ -134,16 +144,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCropsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/activities': {
+      id: '/_authenticated/activities'
+      path: '/activities'
+      fullPath: '/activities'
+      preLoaderRoute: typeof AuthenticatedActivitiesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedActivitiesRoute: typeof AuthenticatedActivitiesRoute
   AuthenticatedCropsRoute: typeof AuthenticatedCropsRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedFarmRoute: typeof AuthenticatedFarmRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedActivitiesRoute: AuthenticatedActivitiesRoute,
   AuthenticatedCropsRoute: AuthenticatedCropsRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedFarmRoute: AuthenticatedFarmRoute,
