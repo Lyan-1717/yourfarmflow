@@ -2,6 +2,7 @@ import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
 import { supabase } from "@/integrations/supabase/client";
+import { ProjectSwitcher } from "@/components/project-switcher";
 
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
@@ -19,9 +20,10 @@ function AuthedLayout() {
       <div className="min-h-screen flex w-full bg-background">
         <AppSidebar />
         <div className="flex-1 flex flex-col min-w-0">
-          <header className="h-14 flex items-center gap-3 border-b px-4 bg-card">
+          <header className="h-14 flex items-center gap-3 border-b px-3 sm:px-4 bg-card">
             <SidebarTrigger />
-            <h1 className="font-semibold">YourFarmFlow</h1>
+            <h1 className="font-semibold hidden sm:block">YourFarmFlow</h1>
+            <div className="ml-auto"><ProjectSwitcher /></div>
           </header>
           <main className="flex-1 p-4 md:p-6 overflow-auto">
             <Outlet />
