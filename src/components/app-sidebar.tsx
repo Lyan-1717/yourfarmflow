@@ -1,6 +1,6 @@
 import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
 import {
-  LayoutDashboard, Sprout, Activity, Receipt, TrendingUp, Tractor, LogOut,
+  LayoutDashboard, Sprout, Activity, Receipt, TrendingUp, FolderKanban, LogOut,
 } from "lucide-react";
 import {
   Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent,
@@ -15,7 +15,7 @@ const items = [
   { title: "Activities", url: "/activities", icon: Activity },
   { title: "Expenses", url: "/expenses", icon: Receipt },
   { title: "Income", url: "/income", icon: TrendingUp },
-  { title: "Farm Profile", url: "/farm", icon: Tractor },
+  { title: "Projects", url: "/projects", icon: FolderKanban },
 ] as const;
 
 export function AppSidebar() {
