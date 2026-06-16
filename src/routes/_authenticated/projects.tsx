@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Trash2, Home, Tractor, Plus } from "lucide-react";
+import { Trash2, Home, Tractor, Plus, Beef } from "lucide-react";
 import { toast } from "sonner";
 import { useProjects, useCurrentProjectId, setCurrentProjectId } from "@/lib/current-project";
 
@@ -21,7 +21,7 @@ function ProjectsPage() {
   const { data: projects = [] } = useProjects();
   const currentId = useCurrentProjectId();
   const [name, setName] = useState("");
-  const [type, setType] = useState<"farm" | "building">("farm");
+  const [type, setType] = useState<"farm" | "livestock" | "building">("farm");
   const [location, setLocation] = useState("");
 
   async function add(e: React.FormEvent) {
@@ -62,12 +62,15 @@ function ProjectsPage() {
             <div className="space-y-2"><Label>Name</Label><Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Home farm" required /></div>
             <div className="space-y-2">
               <Label>Type</Label>
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                 <button type="button" onClick={() => setType("farm")} className={`flex items-center gap-2 rounded-md border p-3 text-sm ${type === "farm" ? "border-primary bg-primary/5" : ""}`}>
-                  <Tractor className="h-4 w-4" /> Farm
+                  <Tractor className="h-4 w-4" /> Crop Farm
+                </button>
+                <button type="button" onClick={() => setType("livestock")} className={`flex items-center gap-2 rounded-md border p-3 text-sm ${type === "livestock" ? "border-primary bg-primary/5" : ""}`}>
+                  <Beef className="h-4 w-4" /> Livestock Farm
                 </button>
                 <button type="button" onClick={() => setType("building")} className={`flex items-center gap-2 rounded-md border p-3 text-sm ${type === "building" ? "border-primary bg-primary/5" : ""}`}>
-                  <Home className="h-4 w-4" /> Building / House
+                  <Home className="h-4 w-4" /> Building / Construction
                 </button>
               </div>
             </div>
@@ -88,12 +91,12 @@ function ProjectsPage() {
                 <li key={p.id} className="py-3 flex items-center justify-between gap-3">
                   <button onClick={() => setCurrentProjectId(p.id)} className="flex items-center gap-3 min-w-0 flex-1 text-left">
                     <div className="h-9 w-9 rounded-md bg-muted flex items-center justify-center shrink-0">
-                      {p.type === "farm" ? <Tractor className="h-4 w-4" /> : <Home className="h-4 w-4" />}
+                      {p.type === "farm" ? <Tractor className="h-4 w-4" /> : p.type === "livestock" ? <Beef className="h-4 w-4" /> : <Home className="h-4 w-4" />}
                     </div>
                     <div className="min-w-0">
                       <p className="font-medium truncate">{p.name}</p>
                       <p className="text-xs text-muted-foreground truncate">
-                        {p.type === "farm" ? "Farm" : "Building / House"}{p.location ? ` · ${p.location}` : ""}
+                        {p.type === "farm" ? "Crop Farm" : p.type === "livestock" ? "Livestock Farm" : "Building / Construction"}{p.location ? ` · ${p.location}` : ""}
                       </p>
                     </div>
                   </button>
