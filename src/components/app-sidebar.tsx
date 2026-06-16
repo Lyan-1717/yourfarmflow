@@ -1,6 +1,6 @@
 import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
 import {
-  LayoutDashboard, Sprout, Activity, Receipt, TrendingUp, FolderKanban, LogOut,
+  LayoutDashboard, Sprout, Activity, Receipt, TrendingUp, FolderKanban, LogOut, Beef,
 } from "lucide-react";
 import {
   Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent,
@@ -8,19 +8,25 @@ import {
 } from "@/components/ui/sidebar";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-
-const items = [
-  { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
-  { title: "Crops", url: "/crops", icon: Sprout },
-  { title: "Activities", url: "/activities", icon: Activity },
-  { title: "Expenses", url: "/expenses", icon: Receipt },
-  { title: "Income", url: "/income", icon: TrendingUp },
-  { title: "Projects", url: "/projects", icon: FolderKanban },
-] as const;
+import { useCurrentProjectId, useProjects } from "@/lib/current-project";
 
 export function AppSidebar() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const navigate = useNavigate();
+  const projectId = useCurrentProjectId();
+  const { data: projects = [] } = useProjects();
+  const current = projects.find((p) => p.id === projectId);
+  const t = current?.type;
+
+  const items = [
+    { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard, show: true },
+    { title: "Crops", url: "/crops", icon: Sprout, show: t === "farm" },
+    { title: "Livestock", url: "/livestock", icon: Beef, show: t === "livestock" },
+    { title: "Activities", url: "/activities", icon: Activity, show: t === "farm" || t === "building" },
+    { title: "Expenses", url: "/expenses", icon: Receipt, show: true },
+    { title: "Income", url: "/income", icon: TrendingUp, show: true },
+    { title: "Projects", url: "/projects", icon: FolderKanban, show: true },
+  ].filter((i) => i.show);
 
   async function signOut() {
     await supabase.auth.signOut();

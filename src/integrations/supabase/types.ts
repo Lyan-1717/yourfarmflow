@@ -215,6 +215,107 @@ export type Database = {
           },
         ]
       }
+      livestock: {
+        Row: {
+          animal_type: string
+          breed: string | null
+          created_at: string
+          id: string
+          name: string
+          notes: string | null
+          project_id: string
+          purchase_cost: number | null
+          purchase_date: string | null
+          quantity: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          animal_type: string
+          breed?: string | null
+          created_at?: string
+          id?: string
+          name: string
+          notes?: string | null
+          project_id: string
+          purchase_cost?: number | null
+          purchase_date?: string | null
+          quantity?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          animal_type?: string
+          breed?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+          notes?: string | null
+          project_id?: string
+          purchase_cost?: number | null
+          purchase_date?: string | null
+          quantity?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "livestock_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      livestock_activities: {
+        Row: {
+          activity_date: string
+          created_at: string
+          id: string
+          livestock_id: string | null
+          notes: string | null
+          project_id: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          activity_date?: string
+          created_at?: string
+          id?: string
+          livestock_id?: string | null
+          notes?: string | null
+          project_id: string
+          type: string
+          user_id: string
+        }
+        Update: {
+          activity_date?: string
+          created_at?: string
+          id?: string
+          livestock_id?: string | null
+          notes?: string | null
+          project_id?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "livestock_activities_livestock_id_fkey"
+            columns: ["livestock_id"]
+            isOneToOne: false
+            referencedRelation: "livestock"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "livestock_activities_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       projects: {
         Row: {
           created_at: string
