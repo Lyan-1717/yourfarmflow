@@ -66,8 +66,8 @@ function AuthPage() {
         </div>
         <Card>
           <CardHeader>
-            <CardTitle>Welcome, farmer</CardTitle>
-            <CardDescription>Manage your farm in one place.</CardDescription>
+            <CardTitle>Welcome,</CardTitle>
+            <CardDescription>Manage your farming and construction projects with ease.</CardDescription>
           </CardHeader>
           <CardContent>
             <Tabs value={mode} onValueChange={(v) => setMode(v as any)}>
