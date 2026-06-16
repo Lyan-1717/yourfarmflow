@@ -12,36 +12,49 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { formatDate } from "@/lib/format";
+import { useCurrentProjectId, useProjects } from "@/lib/current-project";
+import { NoProject } from "@/components/no-project";
 
 export const Route = createFileRoute("/_authenticated/activities")({
   head: () => ({ meta: [{ title: "Activities — YourFarmFlow" }] }),
   component: ActivitiesPage,
 });
 
-const TYPES = ["planting", "watering", "fertilizing", "spraying", "harvesting"];
+const FARM_TYPES = ["planting", "watering", "fertilizing", "spraying", "harvesting"];
+const BUILDING_TYPES = ["maintenance", "repair", "cleaning", "inspection", "renovation"];
 
 function ActivitiesPage() {
   const qc = useQueryClient();
+  const projectId = useCurrentProjectId();
+  const { data: projects = [] } = useProjects();
+  const project = projects.find((p) => p.id === projectId);
+  const isFarm = project?.type !== "building";
+  const TYPES = isFarm ? FARM_TYPES : BUILDING_TYPES;
+
   const { data: crops = [] } = useQuery({
-    queryKey: ["crops"],
-    queryFn: async () => (await supabase.from("crops").select("id,name")).data ?? [],
+    enabled: !!projectId && isFarm,
+    queryKey: ["crops", projectId],
+    queryFn: async () => (await supabase.from("crops").select("id,name").eq("project_id", projectId!)).data ?? [],
   });
   const { data: activities = [] } = useQuery({
-    queryKey: ["activities"],
-    queryFn: async () => (await supabase.from("activities").select("*").order("activity_date", { ascending: false })).data ?? [],
+    enabled: !!projectId,
+    queryKey: ["activities", projectId],
+    queryFn: async () => (await supabase.from("activities").select("*").eq("project_id", projectId!).order("activity_date", { ascending: false })).data ?? [],
   });
 
-  const [type, setType] = useState("planting");
+  const [type, setType] = useState(TYPES[0]);
   const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
   const [cropId, setCropId] = useState<string>("none");
   const [notes, setNotes] = useState("");
+
+  if (!projectId) return <NoProject label="activities" />;
 
   async function add(e: React.FormEvent) {
     e.preventDefault();
     const { data: u } = await supabase.auth.getUser();
     const { error } = await supabase.from("activities").insert({
       type, activity_date: date, crop_id: cropId === "none" ? null : cropId,
-      notes: notes || null, user_id: u.user!.id,
+      notes: notes || null, user_id: u.user!.id, project_id: projectId,
     });
     if (error) return toast.error(error.message);
     toast.success("Activity logged");
@@ -61,7 +74,7 @@ function ActivitiesPage() {
     <div className="max-w-5xl mx-auto space-y-6">
       <div>
         <h2 className="text-2xl font-bold">Activities</h2>
-        <p className="text-muted-foreground text-sm">Log everything you do on the farm.</p>
+        <p className="text-muted-foreground text-sm">Log everything you do on this project.</p>
       </div>
 
       <Card>
@@ -76,16 +89,18 @@ function ActivitiesPage() {
               </Select>
             </div>
             <div className="space-y-2"><Label>Date</Label><Input type="date" value={date} onChange={(e) => setDate(e.target.value)} required /></div>
-            <div className="space-y-2">
-              <Label>Crop</Label>
-              <Select value={cropId} onValueChange={setCropId}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">None</SelectItem>
-                  {crops.map((c: any) => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
-                </SelectContent>
-              </Select>
-            </div>
+            {isFarm && (
+              <div className="space-y-2">
+                <Label>Crop</Label>
+                <Select value={cropId} onValueChange={setCropId}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">None</SelectItem>
+                    {crops.map((c: any) => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
             <div className="space-y-2 sm:col-span-2 lg:col-span-4"><Label>Notes</Label><Textarea value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Optional" /></div>
             <div className="sm:col-span-2 lg:col-span-4"><Button type="submit">Log activity</Button></div>
           </form>
@@ -99,14 +114,16 @@ function ActivitiesPage() {
             <div className="overflow-x-auto">
               <Table>
                 <TableHeader><TableRow>
-                  <TableHead>Type</TableHead><TableHead>Date</TableHead><TableHead>Crop</TableHead><TableHead>Notes</TableHead><TableHead></TableHead>
+                  <TableHead>Type</TableHead><TableHead>Date</TableHead>
+                  {isFarm && <TableHead>Crop</TableHead>}
+                  <TableHead>Notes</TableHead><TableHead></TableHead>
                 </TableRow></TableHeader>
                 <TableBody>
                   {activities.map((a: any) => (
                     <TableRow key={a.id}>
                       <TableCell className="capitalize font-medium">{a.type}</TableCell>
                       <TableCell>{formatDate(a.activity_date)}</TableCell>
-                      <TableCell>{cropName(a.crop_id)}</TableCell>
+                      {isFarm && <TableCell>{cropName(a.crop_id)}</TableCell>}
                       <TableCell className="text-muted-foreground text-sm">{a.notes ?? "—"}</TableCell>
                       <TableCell><Button size="icon" variant="ghost" onClick={() => del(a.id)}><Trash2 className="h-4 w-4" /></Button></TableCell>
                     </TableRow>

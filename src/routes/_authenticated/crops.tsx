@@ -12,6 +12,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { formatDate } from "@/lib/format";
+import { useCurrentProjectId, useProjects } from "@/lib/current-project";
+import { NoProject } from "@/components/no-project";
+import { Card as InfoCard, CardContent as InfoCC } from "@/components/ui/card";
 
 export const Route = createFileRoute("/_authenticated/crops")({
   head: () => ({ meta: [{ title: "Crops — YourFarmFlow" }] }),
@@ -20,26 +23,46 @@ export const Route = createFileRoute("/_authenticated/crops")({
 
 function CropsPage() {
   const qc = useQueryClient();
+  const projectId = useCurrentProjectId();
+  const { data: projects = [] } = useProjects();
+  const project = projects.find((p) => p.id === projectId);
+
   const { data: crops = [] } = useQuery({
-    queryKey: ["crops"],
-    queryFn: async () => (await supabase.from("crops").select("*").order("created_at", { ascending: false })).data ?? [],
+    enabled: !!projectId,
+    queryKey: ["crops", projectId],
+    queryFn: async () => (await supabase.from("crops").select("*").eq("project_id", projectId!).order("created_at", { ascending: false })).data ?? [],
   });
   const [name, setName] = useState("");
   const [planting, setPlanting] = useState("");
   const [harvest, setHarvest] = useState("");
   const [status, setStatus] = useState("growing");
 
+  if (!projectId) return <NoProject label="crops" />;
+
+  if (project && project.type === "building") {
+    return (
+      <div className="max-w-md mx-auto">
+        <InfoCard>
+          <InfoCC className="pt-6 text-center text-sm text-muted-foreground">
+            Crops are only available for farm projects. Switch to a farm project to manage crops.
+          </InfoCC>
+        </InfoCard>
+      </div>
+    );
+  }
+
   async function add(e: React.FormEvent) {
     e.preventDefault();
     const { data: u } = await supabase.auth.getUser();
     const { error } = await supabase.from("crops").insert({
       name, planting_date: planting || null, expected_harvest_date: harvest || null,
-      status, user_id: u.user!.id,
+      status, user_id: u.user!.id, project_id: projectId,
     });
     if (error) return toast.error(error.message);
     toast.success("Crop added");
     setName(""); setPlanting(""); setHarvest(""); setStatus("growing");
     qc.invalidateQueries({ queryKey: ["crops"] });
+    qc.invalidateQueries({ queryKey: ["dashboard"] });
   }
 
   async function del(id: string) {
