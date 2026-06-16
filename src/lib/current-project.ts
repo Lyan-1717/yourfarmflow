@@ -42,7 +42,7 @@ export function useCurrentProjectId() {
 export type Project = {
   id: string;
   name: string;
-  type: "farm" | "building";
+  type: "farm" | "livestock" | "building";
   location: string | null;
   user_id: string;
   created_at: string;
