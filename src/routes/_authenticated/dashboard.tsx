@@ -2,8 +2,10 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Receipt, TrendingUp, Wallet, Sprout, Activity } from "lucide-react";
+import { Receipt, TrendingUp, Wallet, Sprout, Activity, Home, Tractor } from "lucide-react";
 import { formatRWF, formatDate } from "@/lib/format";
+import { useCurrentProjectId, useProjects } from "@/lib/current-project";
+import { NoProject } from "@/components/no-project";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({ meta: [{ title: "Dashboard — YourFarmFlow" }] }),
@@ -11,14 +13,19 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
 });
 
 function Dashboard() {
+  const projectId = useCurrentProjectId();
+  const { data: projects = [] } = useProjects();
+  const current = projects.find((p) => p.id === projectId);
+
   const { data } = useQuery({
-    queryKey: ["dashboard"],
+    enabled: !!projectId,
+    queryKey: ["dashboard", projectId],
     queryFn: async () => {
       const [exp, inc, crops, acts] = await Promise.all([
-        supabase.from("expenses").select("amount"),
-        supabase.from("income").select("amount"),
-        supabase.from("crops").select("id,name,status"),
-        supabase.from("activities").select("id,type,activity_date,notes,crop_id").order("activity_date", { ascending: false }).limit(5),
+        supabase.from("expenses").select("amount").eq("project_id", projectId!),
+        supabase.from("income").select("amount").eq("project_id", projectId!),
+        supabase.from("crops").select("id,name,status").eq("project_id", projectId!),
+        supabase.from("activities").select("id,type,activity_date,notes,crop_id").eq("project_id", projectId!).order("activity_date", { ascending: false }).limit(5),
       ]);
       const totalExp = (exp.data ?? []).reduce((s, r: any) => s + Number(r.amount), 0);
       const totalInc = (inc.data ?? []).reduce((s, r: any) => s + Number(r.amount), 0);
@@ -27,18 +34,26 @@ function Dashboard() {
     },
   });
 
+  if (!projectId) return <NoProject label="the dashboard" />;
+
+  const isFarm = current?.type !== "building";
   const stats = [
     { label: "Total Income", value: formatRWF(data?.totalInc ?? 0), icon: TrendingUp, color: "text-emerald-600" },
     { label: "Total Expenses", value: formatRWF(data?.totalExp ?? 0), icon: Receipt, color: "text-rose-600" },
     { label: "Estimated Profit", value: formatRWF(data?.profit ?? 0), icon: Wallet, color: (data?.profit ?? 0) >= 0 ? "text-primary" : "text-rose-600" },
-    { label: "Active Crops", value: String(data?.active ?? 0), icon: Sprout, color: "text-primary" },
+    { label: isFarm ? "Active Crops" : "Active Items", value: String(data?.active ?? 0), icon: Sprout, color: "text-primary" },
   ];
 
   return (
     <div className="space-y-6 max-w-6xl mx-auto w-full">
-      <div>
-        <h2 className="text-2xl font-bold">Dashboard</h2>
-        <p className="text-muted-foreground text-sm">Your farm at a glance.</p>
+      <div className="flex items-center gap-3">
+        <div className="h-10 w-10 rounded-md bg-primary/10 flex items-center justify-center">
+          {isFarm ? <Tractor className="h-5 w-5 text-primary" /> : <Home className="h-5 w-5 text-primary" />}
+        </div>
+        <div>
+          <h2 className="text-2xl font-bold">{current?.name ?? "Dashboard"}</h2>
+          <p className="text-muted-foreground text-sm capitalize">{current?.type === "building" ? "Building / House" : "Farm"}{current?.location ? ` · ${current.location}` : ""}</p>
+        </div>
       </div>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {stats.map((s) => (

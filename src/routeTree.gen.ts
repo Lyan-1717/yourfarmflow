@@ -12,8 +12,8 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedProjectsRouteImport } from './routes/_authenticated/projects'
 import { Route as AuthenticatedIncomeRouteImport } from './routes/_authenticated/income'
-import { Route as AuthenticatedFarmRouteImport } from './routes/_authenticated/farm'
 import { Route as AuthenticatedExpensesRouteImport } from './routes/_authenticated/expenses'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedCropsRouteImport } from './routes/_authenticated/crops'
@@ -33,14 +33,14 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedProjectsRoute = AuthenticatedProjectsRouteImport.update({
+  id: '/projects',
+  path: '/projects',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedIncomeRoute = AuthenticatedIncomeRouteImport.update({
   id: '/income',
   path: '/income',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const AuthenticatedFarmRoute = AuthenticatedFarmRouteImport.update({
-  id: '/farm',
-  path: '/farm',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedExpensesRoute = AuthenticatedExpensesRouteImport.update({
@@ -71,8 +71,8 @@ export interface FileRoutesByFullPath {
   '/crops': typeof AuthenticatedCropsRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/expenses': typeof AuthenticatedExpensesRoute
-  '/farm': typeof AuthenticatedFarmRoute
   '/income': typeof AuthenticatedIncomeRoute
+  '/projects': typeof AuthenticatedProjectsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -81,8 +81,8 @@ export interface FileRoutesByTo {
   '/crops': typeof AuthenticatedCropsRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/expenses': typeof AuthenticatedExpensesRoute
-  '/farm': typeof AuthenticatedFarmRoute
   '/income': typeof AuthenticatedIncomeRoute
+  '/projects': typeof AuthenticatedProjectsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -93,8 +93,8 @@ export interface FileRoutesById {
   '/_authenticated/crops': typeof AuthenticatedCropsRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/expenses': typeof AuthenticatedExpensesRoute
-  '/_authenticated/farm': typeof AuthenticatedFarmRoute
   '/_authenticated/income': typeof AuthenticatedIncomeRoute
+  '/_authenticated/projects': typeof AuthenticatedProjectsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -105,8 +105,8 @@ export interface FileRouteTypes {
     | '/crops'
     | '/dashboard'
     | '/expenses'
-    | '/farm'
     | '/income'
+    | '/projects'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -115,8 +115,8 @@ export interface FileRouteTypes {
     | '/crops'
     | '/dashboard'
     | '/expenses'
-    | '/farm'
     | '/income'
+    | '/projects'
   id:
     | '__root__'
     | '/'
@@ -126,8 +126,8 @@ export interface FileRouteTypes {
     | '/_authenticated/crops'
     | '/_authenticated/dashboard'
     | '/_authenticated/expenses'
-    | '/_authenticated/farm'
     | '/_authenticated/income'
+    | '/_authenticated/projects'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -159,18 +159,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/projects': {
+      id: '/_authenticated/projects'
+      path: '/projects'
+      fullPath: '/projects'
+      preLoaderRoute: typeof AuthenticatedProjectsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/income': {
       id: '/_authenticated/income'
       path: '/income'
       fullPath: '/income'
       preLoaderRoute: typeof AuthenticatedIncomeRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/farm': {
-      id: '/_authenticated/farm'
-      path: '/farm'
-      fullPath: '/farm'
-      preLoaderRoute: typeof AuthenticatedFarmRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/expenses': {
@@ -209,8 +209,8 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedCropsRoute: typeof AuthenticatedCropsRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedExpensesRoute: typeof AuthenticatedExpensesRoute
-  AuthenticatedFarmRoute: typeof AuthenticatedFarmRoute
   AuthenticatedIncomeRoute: typeof AuthenticatedIncomeRoute
+  AuthenticatedProjectsRoute: typeof AuthenticatedProjectsRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -218,8 +218,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedCropsRoute: AuthenticatedCropsRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedExpensesRoute: AuthenticatedExpensesRoute,
-  AuthenticatedFarmRoute: AuthenticatedFarmRoute,
   AuthenticatedIncomeRoute: AuthenticatedIncomeRoute,
+  AuthenticatedProjectsRoute: AuthenticatedProjectsRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
