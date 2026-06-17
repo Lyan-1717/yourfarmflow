@@ -20,6 +20,7 @@ import { Route as AuthenticatedDashboardRouteImport } from './routes/_authentica
 import { Route as AuthenticatedCropsRouteImport } from './routes/_authenticated/crops'
 import { Route as AuthenticatedAnimalsRouteImport } from './routes/_authenticated/animals'
 import { Route as AuthenticatedActivitiesRouteImport } from './routes/_authenticated/activities'
+import { Route as AuthenticatedAnimalsIdRouteImport } from './routes/_authenticated/animals.$id'
 
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
@@ -75,30 +76,37 @@ const AuthenticatedActivitiesRoute = AuthenticatedActivitiesRouteImport.update({
   path: '/activities',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAnimalsIdRoute = AuthenticatedAnimalsIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => AuthenticatedAnimalsRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/activities': typeof AuthenticatedActivitiesRoute
-  '/animals': typeof AuthenticatedAnimalsRoute
+  '/animals': typeof AuthenticatedAnimalsRouteWithChildren
   '/crops': typeof AuthenticatedCropsRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/expenses': typeof AuthenticatedExpensesRoute
   '/income': typeof AuthenticatedIncomeRoute
   '/livestock': typeof AuthenticatedLivestockRoute
   '/projects': typeof AuthenticatedProjectsRoute
+  '/animals/$id': typeof AuthenticatedAnimalsIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/activities': typeof AuthenticatedActivitiesRoute
-  '/animals': typeof AuthenticatedAnimalsRoute
+  '/animals': typeof AuthenticatedAnimalsRouteWithChildren
   '/crops': typeof AuthenticatedCropsRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/expenses': typeof AuthenticatedExpensesRoute
   '/income': typeof AuthenticatedIncomeRoute
   '/livestock': typeof AuthenticatedLivestockRoute
   '/projects': typeof AuthenticatedProjectsRoute
+  '/animals/$id': typeof AuthenticatedAnimalsIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -106,13 +114,14 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/_authenticated/activities': typeof AuthenticatedActivitiesRoute
-  '/_authenticated/animals': typeof AuthenticatedAnimalsRoute
+  '/_authenticated/animals': typeof AuthenticatedAnimalsRouteWithChildren
   '/_authenticated/crops': typeof AuthenticatedCropsRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/expenses': typeof AuthenticatedExpensesRoute
   '/_authenticated/income': typeof AuthenticatedIncomeRoute
   '/_authenticated/livestock': typeof AuthenticatedLivestockRoute
   '/_authenticated/projects': typeof AuthenticatedProjectsRoute
+  '/_authenticated/animals/$id': typeof AuthenticatedAnimalsIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -127,6 +136,7 @@ export interface FileRouteTypes {
     | '/income'
     | '/livestock'
     | '/projects'
+    | '/animals/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -139,6 +149,7 @@ export interface FileRouteTypes {
     | '/income'
     | '/livestock'
     | '/projects'
+    | '/animals/$id'
   id:
     | '__root__'
     | '/'
@@ -152,6 +163,7 @@ export interface FileRouteTypes {
     | '/_authenticated/income'
     | '/_authenticated/livestock'
     | '/_authenticated/projects'
+    | '/_authenticated/animals/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -239,12 +251,30 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedActivitiesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/animals/$id': {
+      id: '/_authenticated/animals/$id'
+      path: '/$id'
+      fullPath: '/animals/$id'
+      preLoaderRoute: typeof AuthenticatedAnimalsIdRouteImport
+      parentRoute: typeof AuthenticatedAnimalsRoute
+    }
   }
 }
 
+interface AuthenticatedAnimalsRouteChildren {
+  AuthenticatedAnimalsIdRoute: typeof AuthenticatedAnimalsIdRoute
+}
+
+const AuthenticatedAnimalsRouteChildren: AuthenticatedAnimalsRouteChildren = {
+  AuthenticatedAnimalsIdRoute: AuthenticatedAnimalsIdRoute,
+}
+
+const AuthenticatedAnimalsRouteWithChildren =
+  AuthenticatedAnimalsRoute._addFileChildren(AuthenticatedAnimalsRouteChildren)
+
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedActivitiesRoute: typeof AuthenticatedActivitiesRoute
-  AuthenticatedAnimalsRoute: typeof AuthenticatedAnimalsRoute
+  AuthenticatedAnimalsRoute: typeof AuthenticatedAnimalsRouteWithChildren
   AuthenticatedCropsRoute: typeof AuthenticatedCropsRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedExpensesRoute: typeof AuthenticatedExpensesRoute
@@ -255,7 +285,7 @@ interface AuthenticatedRouteRouteChildren {
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedActivitiesRoute: AuthenticatedActivitiesRoute,
-  AuthenticatedAnimalsRoute: AuthenticatedAnimalsRoute,
+  AuthenticatedAnimalsRoute: AuthenticatedAnimalsRouteWithChildren,
   AuthenticatedCropsRoute: AuthenticatedCropsRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedExpensesRoute: AuthenticatedExpensesRoute,

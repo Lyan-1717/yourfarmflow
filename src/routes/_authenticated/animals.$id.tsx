@@ -110,6 +110,7 @@ function AnimalProfile() {
 
   async function addMilk(e: React.FormEvent) {
     e.preventDefault();
+    if (!animal) return;
     const liters = Number(mLiters);
     if (!liters || liters <= 0) return toast.error("Enter liters");
     const { data: u } = await supabase.auth.getUser();
