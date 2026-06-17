@@ -46,6 +46,9 @@ function ActivitiesPage() {
   const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
   const [cropId, setCropId] = useState<string>("none");
   const [notes, setNotes] = useState("");
+  const [status, setStatus] = useState("Planned");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
 
   if (!projectId) return <NoProject label="activities" />;
 
@@ -55,10 +58,11 @@ function ActivitiesPage() {
     const { error } = await supabase.from("activities").insert({
       type, activity_date: date, crop_id: cropId === "none" ? null : cropId,
       notes: notes || null, user_id: u.user!.id, project_id: projectId,
+      status: status || null, start_date: startDate || null, end_date: endDate || null,
     });
     if (error) return toast.error(error.message);
     toast.success("Activity logged");
-    setNotes(""); setCropId("none");
+    setNotes(""); setCropId("none"); setStartDate(""); setEndDate("");
     qc.invalidateQueries({ queryKey: ["activities"] });
     qc.invalidateQueries({ queryKey: ["dashboard"] });
   }
@@ -101,6 +105,14 @@ function ActivitiesPage() {
                 </Select>
               </div>
             )}
+            <div className="space-y-2"><Label>Status</Label>
+              <Select value={status} onValueChange={setStatus}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>{["Planned","In Progress","Completed"].map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2"><Label>Start date</Label><Input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} /></div>
+            <div className="space-y-2"><Label>End date</Label><Input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} /></div>
             <div className="space-y-2 sm:col-span-2 lg:col-span-4"><Label>Notes</Label><Textarea value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Optional" /></div>
             <div className="sm:col-span-2 lg:col-span-4"><Button type="submit">Log activity</Button></div>
           </form>
