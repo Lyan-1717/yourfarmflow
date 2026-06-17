@@ -95,6 +95,29 @@ function Dashboard() {
         ))}
       </div>
 
+      {isLivestock && (
+        <Card>
+          <CardHeader><CardTitle className="flex items-center gap-2"><Wallet className="h-4 w-4 text-primary" /> Livestock Net Worth</CardTitle></CardHeader>
+          <CardContent className="space-y-3">
+            <div className="flex items-baseline justify-between">
+              <p className="text-3xl font-bold">{formatRWF(data?.netWorth ?? 0)}</p>
+              <p className="text-xs text-muted-foreground">Excludes sold & deceased animals</p>
+            </div>
+            <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+              {Object.entries(data?.byType ?? {}).map(([t, v]) => (
+                <div key={t} className="rounded border p-2 text-sm flex justify-between">
+                  <span className="text-muted-foreground">{t}</span>
+                  <span className="font-semibold">{formatRWF(v as number)}</span>
+                </div>
+              ))}
+              {Object.keys(data?.byType ?? {}).length === 0 && (
+                <p className="text-sm text-muted-foreground sm:col-span-3">Add individual animals with values from the <Link to="/animals" className="underline">Animals</Link> page to compute net worth.</p>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2"><Activity className="h-4 w-4" /> Recent {isLivestock ? "Livestock " : ""}Activities</CardTitle>
