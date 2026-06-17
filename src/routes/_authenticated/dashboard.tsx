@@ -24,7 +24,7 @@ function Dashboard() {
     queryKey: ["dashboard", projectId, ptype],
     queryFn: async () => {
       const recentTable = isLivestock ? "livestock_activities" : "activities";
-      const [exp, inc, crops, livestock, acts] = await Promise.all([
+      const [exp, inc, crops, livestock, acts, regAnimals] = await Promise.all([
         supabase.from("expenses").select("amount").eq("project_id", projectId!),
         supabase.from("income").select("amount").eq("project_id", projectId!),
         isLivestock
@@ -34,13 +34,20 @@ function Dashboard() {
           ? supabase.from("livestock").select("id,quantity").eq("project_id", projectId!)
           : Promise.resolve({ data: [] as any[] }),
         supabase.from(recentTable).select("id,type,activity_date,notes").eq("project_id", projectId!).order("activity_date", { ascending: false }).limit(5),
+        isLivestock
+          ? supabase.from("animals").select("estimated_value,animal_type,status").eq("project_id", projectId!)
+          : Promise.resolve({ data: [] as any[] }),
       ]);
       const totalExp = (exp.data ?? []).reduce((s, r: any) => s + Number(r.amount), 0);
       const totalInc = (inc.data ?? []).reduce((s, r: any) => s + Number(r.amount), 0);
       const active = (crops.data ?? []).filter((c: any) => c.status === "growing").length;
       const groups = (livestock.data ?? []).length;
       const animals = (livestock.data ?? []).reduce((s: number, r: any) => s + Number(r.quantity || 0), 0);
-      return { totalExp, totalInc, profit: totalInc - totalExp, active, groups, animals, recent: acts.data ?? [] };
+      const live = (regAnimals.data ?? []).filter((a: any) => a.status !== "Sold" && a.status !== "Deceased");
+      const netWorth = live.reduce((s: number, a: any) => s + Number(a.estimated_value || 0), 0);
+      const byType: Record<string, number> = {};
+      live.forEach((a: any) => { byType[a.animal_type] = (byType[a.animal_type] || 0) + Number(a.estimated_value || 0); });
+      return { totalExp, totalInc, profit: totalInc - totalExp, active, groups, animals, recent: acts.data ?? [], netWorth, byType };
     },
   });
 
@@ -87,6 +94,29 @@ function Dashboard() {
           </Card>
         ))}
       </div>
+
+      {isLivestock && (
+        <Card>
+          <CardHeader><CardTitle className="flex items-center gap-2"><Wallet className="h-4 w-4 text-primary" /> Livestock Net Worth</CardTitle></CardHeader>
+          <CardContent className="space-y-3">
+            <div className="flex items-baseline justify-between">
+              <p className="text-3xl font-bold">{formatRWF(data?.netWorth ?? 0)}</p>
+              <p className="text-xs text-muted-foreground">Excludes sold & deceased animals</p>
+            </div>
+            <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+              {Object.entries(data?.byType ?? {}).map(([t, v]) => (
+                <div key={t} className="rounded border p-2 text-sm flex justify-between">
+                  <span className="text-muted-foreground">{t}</span>
+                  <span className="font-semibold">{formatRWF(v as number)}</span>
+                </div>
+              ))}
+              {Object.keys(data?.byType ?? {}).length === 0 && (
+                <p className="text-sm text-muted-foreground sm:col-span-3">Add individual animals with values from the <Link to="/animals" className="underline">Animals</Link> page to compute net worth.</p>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       <Card>
         <CardHeader>
