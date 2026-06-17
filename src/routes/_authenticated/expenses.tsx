@@ -7,10 +7,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { formatDate, formatRWF } from "@/lib/format";
-import { useCurrentProjectId } from "@/lib/current-project";
+import { useCurrentProjectId, useProjects } from "@/lib/current-project";
 import { NoProject } from "@/components/no-project";
 
 export const Route = createFileRoute("/_authenticated/expenses")({
@@ -21,16 +22,31 @@ export const Route = createFileRoute("/_authenticated/expenses")({
 function ExpensesPage() {
   const qc = useQueryClient();
   const projectId = useCurrentProjectId();
+  const { data: projects = [] } = useProjects();
+  const project = projects.find((p) => p.id === projectId);
+  const ptype = project?.type;
   const { data: items = [] } = useQuery({
     enabled: !!projectId,
     queryKey: ["expenses", projectId],
     queryFn: async () => (await supabase.from("expenses").select("*").eq("project_id", projectId!).order("expense_date", { ascending: false })).data ?? [],
+  });
+  const { data: cropActs = [] } = useQuery({
+    enabled: !!projectId && ptype === "farm",
+    queryKey: ["activities", projectId],
+    queryFn: async () => (await supabase.from("activities").select("id,type,activity_date").eq("project_id", projectId!).order("activity_date", { ascending: false })).data ?? [],
+  });
+  const { data: cActs = [] } = useQuery({
+    enabled: !!projectId && ptype === "building",
+    queryKey: ["construction_activities", projectId],
+    queryFn: async () => (await supabase.from("construction_activities").select("id,name").eq("project_id", projectId!)).data ?? [],
   });
 
   const [title, setTitle] = useState("");
   const [amount, setAmount] = useState("");
   const [category, setCategory] = useState("");
   const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
+  const [expenseType, setExpenseType] = useState<string>("material");
+  const [activityId, setActivityId] = useState<string>("");
 
   if (!projectId) return <NoProject label="expenses" />;
 
@@ -41,13 +57,19 @@ function ExpensesPage() {
     const amt = Number(amount);
     if (!amt || amt <= 0) return toast.error("Enter a valid amount");
     const { data: u } = await supabase.auth.getUser();
-    const { error } = await supabase.from("expenses").insert({
+    const payload: any = {
       title, amount: amt, category: category || null, expense_date: date,
       user_id: u.user!.id, project_id: projectId,
-    });
+      expense_type: expenseType || null,
+    };
+    if (activityId) {
+      if (ptype === "building") payload.construction_activity_id = activityId;
+      else payload.activity_id = activityId;
+    }
+    const { error } = await supabase.from("expenses").insert(payload);
     if (error) return toast.error(error.message);
     toast.success("Expense added");
-    setTitle(""); setAmount(""); setCategory("");
+    setTitle(""); setAmount(""); setCategory(""); setActivityId("");
     qc.invalidateQueries({ queryKey: ["expenses"] });
     qc.invalidateQueries({ queryKey: ["dashboard"] });
   }
@@ -77,8 +99,25 @@ function ExpensesPage() {
           <form onSubmit={add} className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             <div className="space-y-2"><Label>Title</Label><Input required value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Fertilizer" /></div>
             <div className="space-y-2"><Label>Amount (RWF)</Label><Input type="number" min="0" required value={amount} onChange={(e) => setAmount(e.target.value)} /></div>
-            <div className="space-y-2"><Label>Category</Label><Input value={category} onChange={(e) => setCategory(e.target.value)} placeholder="Inputs, Labor…" /></div>
+            <div className="space-y-2"><Label>Type</Label>
+              <Select value={expenseType} onValueChange={setExpenseType}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent><SelectItem value="material">Material</SelectItem><SelectItem value="labor">Labor</SelectItem><SelectItem value="other">Other</SelectItem></SelectContent>
+              </Select>
+            </div>
             <div className="space-y-2"><Label>Date</Label><Input type="date" required value={date} onChange={(e) => setDate(e.target.value)} /></div>
+            <div className="space-y-2"><Label>Category (optional)</Label><Input value={category} onChange={(e) => setCategory(e.target.value)} placeholder="Inputs…" /></div>
+            {(ptype === "farm" || ptype === "building") && (
+              <div className="space-y-2 sm:col-span-2"><Label>{ptype === "building" ? "Construction activity" : "Crop activity"} (optional)</Label>
+                <Select value={activityId || "none"} onValueChange={(v) => setActivityId(v === "none" ? "" : v)}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">— None —</SelectItem>
+                    {(ptype === "building" ? cActs : cropActs).map((a: any) => <SelectItem key={a.id} value={a.id}>{a.name ?? a.type}{a.activity_date ? ` · ${formatDate(a.activity_date)}` : ""}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
             <div className="sm:col-span-2 lg:col-span-4"><Button type="submit">Add expense</Button></div>
           </form>
         </CardContent>
