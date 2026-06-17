@@ -18,6 +18,7 @@ import { Route as AuthenticatedIncomeRouteImport } from './routes/_authenticated
 import { Route as AuthenticatedExpensesRouteImport } from './routes/_authenticated/expenses'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedCropsRouteImport } from './routes/_authenticated/crops'
+import { Route as AuthenticatedAnimalsRouteImport } from './routes/_authenticated/animals'
 import { Route as AuthenticatedActivitiesRouteImport } from './routes/_authenticated/activities'
 
 const AuthRoute = AuthRouteImport.update({
@@ -64,6 +65,11 @@ const AuthenticatedCropsRoute = AuthenticatedCropsRouteImport.update({
   path: '/crops',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAnimalsRoute = AuthenticatedAnimalsRouteImport.update({
+  id: '/animals',
+  path: '/animals',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedActivitiesRoute = AuthenticatedActivitiesRouteImport.update({
   id: '/activities',
   path: '/activities',
@@ -74,6 +80,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/activities': typeof AuthenticatedActivitiesRoute
+  '/animals': typeof AuthenticatedAnimalsRoute
   '/crops': typeof AuthenticatedCropsRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/expenses': typeof AuthenticatedExpensesRoute
@@ -85,6 +92,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/activities': typeof AuthenticatedActivitiesRoute
+  '/animals': typeof AuthenticatedAnimalsRoute
   '/crops': typeof AuthenticatedCropsRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/expenses': typeof AuthenticatedExpensesRoute
@@ -98,6 +106,7 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/_authenticated/activities': typeof AuthenticatedActivitiesRoute
+  '/_authenticated/animals': typeof AuthenticatedAnimalsRoute
   '/_authenticated/crops': typeof AuthenticatedCropsRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/expenses': typeof AuthenticatedExpensesRoute
@@ -111,6 +120,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/activities'
+    | '/animals'
     | '/crops'
     | '/dashboard'
     | '/expenses'
@@ -122,6 +132,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/activities'
+    | '/animals'
     | '/crops'
     | '/dashboard'
     | '/expenses'
@@ -134,6 +145,7 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/auth'
     | '/_authenticated/activities'
+    | '/_authenticated/animals'
     | '/_authenticated/crops'
     | '/_authenticated/dashboard'
     | '/_authenticated/expenses'
@@ -213,6 +225,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCropsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/animals': {
+      id: '/_authenticated/animals'
+      path: '/animals'
+      fullPath: '/animals'
+      preLoaderRoute: typeof AuthenticatedAnimalsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/activities': {
       id: '/_authenticated/activities'
       path: '/activities'
@@ -225,6 +244,7 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedActivitiesRoute: typeof AuthenticatedActivitiesRoute
+  AuthenticatedAnimalsRoute: typeof AuthenticatedAnimalsRoute
   AuthenticatedCropsRoute: typeof AuthenticatedCropsRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedExpensesRoute: typeof AuthenticatedExpensesRoute
@@ -235,6 +255,7 @@ interface AuthenticatedRouteRouteChildren {
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedActivitiesRoute: AuthenticatedActivitiesRoute,
+  AuthenticatedAnimalsRoute: AuthenticatedAnimalsRoute,
   AuthenticatedCropsRoute: AuthenticatedCropsRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedExpensesRoute: AuthenticatedExpensesRoute,

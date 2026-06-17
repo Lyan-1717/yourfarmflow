@@ -75,9 +75,6 @@ function AnimalsPage() {
       date_of_birth: dob || null, status, estimated_value: value ? Number(value) : 0, notes: notes || null,
     });
     if (error) return toast.error(error.message);
-    await supabase.from("animal_status_history").insert({
-      user_id: u.user!.id, animal_id: undefined as any, status, changed_at: new Date().toISOString().slice(0,10), notes: "Initial",
-    }).then(() => {}).catch(() => {});
     toast.success("Animal added");
     setTag(""); setName(""); setBreed(""); setDob(""); setValue(""); setNotes("");
     qc.invalidateQueries({ queryKey: ["animals"] });
@@ -97,9 +94,9 @@ function AnimalsPage() {
     const females = Number(bFemales) || 0;
     if (males + females <= 0) return toast.error("Enter at least one offspring");
     const { error } = await supabase.rpc("record_birth", {
-      _project_id: projectId!, _group_id: grpId,
-      _mother_id: bMother || null, _birth_date: bDate,
-      _num_males: males, _num_females: females, _notes: bNotes || null,
+      _project_id: projectId!, _group_id: grpId as string,
+      _mother_id: bMother || (undefined as any), _birth_date: bDate,
+      _num_males: males, _num_females: females, _notes: bNotes || (undefined as any),
     });
     if (error) return toast.error(error.message);
     toast.success(`Recorded ${males + females} offspring`);
