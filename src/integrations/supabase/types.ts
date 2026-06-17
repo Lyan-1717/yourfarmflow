@@ -19,9 +19,12 @@ export type Database = {
           activity_date: string
           created_at: string
           crop_id: string | null
+          end_date: string | null
           id: string
           notes: string | null
           project_id: string | null
+          start_date: string | null
+          status: string | null
           type: string
           user_id: string
         }
@@ -29,9 +32,12 @@ export type Database = {
           activity_date?: string
           created_at?: string
           crop_id?: string | null
+          end_date?: string | null
           id?: string
           notes?: string | null
           project_id?: string | null
+          start_date?: string | null
+          status?: string | null
           type: string
           user_id: string
         }
@@ -39,9 +45,12 @@ export type Database = {
           activity_date?: string
           created_at?: string
           crop_id?: string | null
+          end_date?: string | null
           id?: string
           notes?: string | null
           project_id?: string | null
+          start_date?: string | null
+          status?: string | null
           type?: string
           user_id?: string
         }
@@ -61,6 +70,300 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      animal_health_records: {
+        Row: {
+          animal_id: string
+          cost: number | null
+          created_at: string
+          description: string | null
+          id: string
+          notes: string | null
+          record_date: string
+          record_type: string
+          user_id: string
+        }
+        Insert: {
+          animal_id: string
+          cost?: number | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          notes?: string | null
+          record_date?: string
+          record_type: string
+          user_id: string
+        }
+        Update: {
+          animal_id?: string
+          cost?: number | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          notes?: string | null
+          record_date?: string
+          record_type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "animal_health_records_animal_id_fkey"
+            columns: ["animal_id"]
+            isOneToOne: false
+            referencedRelation: "animals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      animal_status_history: {
+        Row: {
+          animal_id: string
+          changed_at: string
+          created_at: string
+          id: string
+          notes: string | null
+          status: string
+          user_id: string
+        }
+        Insert: {
+          animal_id: string
+          changed_at?: string
+          created_at?: string
+          id?: string
+          notes?: string | null
+          status: string
+          user_id: string
+        }
+        Update: {
+          animal_id?: string
+          changed_at?: string
+          created_at?: string
+          id?: string
+          notes?: string | null
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "animal_status_history_animal_id_fkey"
+            columns: ["animal_id"]
+            isOneToOne: false
+            referencedRelation: "animals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      animals: {
+        Row: {
+          animal_type: string
+          breed: string | null
+          created_at: string
+          date_of_birth: string | null
+          estimated_value: number
+          gender: string | null
+          group_id: string
+          id: string
+          mother_id: string | null
+          name: string | null
+          notes: string | null
+          project_id: string
+          status: string
+          tag_number: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          animal_type: string
+          breed?: string | null
+          created_at?: string
+          date_of_birth?: string | null
+          estimated_value?: number
+          gender?: string | null
+          group_id: string
+          id?: string
+          mother_id?: string | null
+          name?: string | null
+          notes?: string | null
+          project_id: string
+          status?: string
+          tag_number?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          animal_type?: string
+          breed?: string | null
+          created_at?: string
+          date_of_birth?: string | null
+          estimated_value?: number
+          gender?: string | null
+          group_id?: string
+          id?: string
+          mother_id?: string | null
+          name?: string | null
+          notes?: string | null
+          project_id?: string
+          status?: string
+          tag_number?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "animals_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "livestock"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "animals_mother_id_fkey"
+            columns: ["mother_id"]
+            isOneToOne: false
+            referencedRelation: "animals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      birth_records: {
+        Row: {
+          birth_date: string
+          created_at: string
+          group_id: string
+          id: string
+          mother_id: string | null
+          notes: string | null
+          num_females: number
+          num_males: number
+          num_offspring: number
+          project_id: string
+          user_id: string
+        }
+        Insert: {
+          birth_date?: string
+          created_at?: string
+          group_id: string
+          id?: string
+          mother_id?: string | null
+          notes?: string | null
+          num_females?: number
+          num_males?: number
+          num_offspring?: number
+          project_id: string
+          user_id: string
+        }
+        Update: {
+          birth_date?: string
+          created_at?: string
+          group_id?: string
+          id?: string
+          mother_id?: string | null
+          notes?: string | null
+          num_females?: number
+          num_males?: number
+          num_offspring?: number
+          project_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "birth_records_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "livestock"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "birth_records_mother_id_fkey"
+            columns: ["mother_id"]
+            isOneToOne: false
+            referencedRelation: "animals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      breeding_records: {
+        Row: {
+          animal_id: string
+          bred_on: string
+          created_at: string
+          expected_due: string | null
+          id: string
+          mate_tag: string | null
+          notes: string | null
+          outcome: string | null
+          user_id: string
+        }
+        Insert: {
+          animal_id: string
+          bred_on?: string
+          created_at?: string
+          expected_due?: string | null
+          id?: string
+          mate_tag?: string | null
+          notes?: string | null
+          outcome?: string | null
+          user_id: string
+        }
+        Update: {
+          animal_id?: string
+          bred_on?: string
+          created_at?: string
+          expected_due?: string | null
+          id?: string
+          mate_tag?: string | null
+          notes?: string | null
+          outcome?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "breeding_records_animal_id_fkey"
+            columns: ["animal_id"]
+            isOneToOne: false
+            referencedRelation: "animals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      construction_activities: {
+        Row: {
+          created_at: string
+          description: string | null
+          end_date: string | null
+          id: string
+          name: string
+          project_id: string
+          start_date: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          end_date?: string | null
+          id?: string
+          name: string
+          project_id: string
+          start_date?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          end_date?: string | null
+          id?: string
+          name?: string
+          project_id?: string
+          start_date?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       crops: {
         Row: {
@@ -108,30 +411,39 @@ export type Database = {
       }
       expenses: {
         Row: {
+          activity_id: string | null
           amount: number
           category: string | null
+          construction_activity_id: string | null
           created_at: string
           expense_date: string
+          expense_type: string | null
           id: string
           project_id: string | null
           title: string
           user_id: string
         }
         Insert: {
+          activity_id?: string | null
           amount: number
           category?: string | null
+          construction_activity_id?: string | null
           created_at?: string
           expense_date?: string
+          expense_type?: string | null
           id?: string
           project_id?: string | null
           title: string
           user_id: string
         }
         Update: {
+          activity_id?: string | null
           amount?: number
           category?: string | null
+          construction_activity_id?: string | null
           created_at?: string
           expense_date?: string
+          expense_type?: string | null
           id?: string
           project_id?: string | null
           title?: string
@@ -316,6 +628,98 @@ export type Database = {
           },
         ]
       }
+      livestock_valuation_snapshots: {
+        Row: {
+          animal_count: number
+          created_at: string
+          group_id: string | null
+          id: string
+          project_id: string
+          snapshot_date: string
+          total_value: number
+          user_id: string
+        }
+        Insert: {
+          animal_count?: number
+          created_at?: string
+          group_id?: string | null
+          id?: string
+          project_id: string
+          snapshot_date?: string
+          total_value?: number
+          user_id: string
+        }
+        Update: {
+          animal_count?: number
+          created_at?: string
+          group_id?: string | null
+          id?: string
+          project_id?: string
+          snapshot_date?: string
+          total_value?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "livestock_valuation_snapshots_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "livestock"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      milk_records: {
+        Row: {
+          animal_id: string | null
+          created_at: string
+          group_id: string
+          id: string
+          liters: number
+          notes: string | null
+          project_id: string
+          record_date: string
+          user_id: string
+        }
+        Insert: {
+          animal_id?: string | null
+          created_at?: string
+          group_id: string
+          id?: string
+          liters?: number
+          notes?: string | null
+          project_id: string
+          record_date?: string
+          user_id: string
+        }
+        Update: {
+          animal_id?: string | null
+          created_at?: string
+          group_id?: string
+          id?: string
+          liters?: number
+          notes?: string | null
+          project_id?: string
+          record_date?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "milk_records_animal_id_fkey"
+            columns: ["animal_id"]
+            isOneToOne: false
+            referencedRelation: "animals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "milk_records_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "livestock"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       projects: {
         Row: {
           created_at: string
@@ -351,7 +755,18 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      record_birth: {
+        Args: {
+          _birth_date: string
+          _group_id: string
+          _mother_id: string
+          _notes: string
+          _num_females: number
+          _num_males: number
+          _project_id: string
+        }
+        Returns: string
+      }
     }
     Enums: {
       [_ in never]: never
