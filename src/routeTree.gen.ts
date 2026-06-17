@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedStatisticsRouteImport } from './routes/_authenticated/statistics'
 import { Route as AuthenticatedProjectsRouteImport } from './routes/_authenticated/projects'
 import { Route as AuthenticatedMilkRouteImport } from './routes/_authenticated/milk'
 import { Route as AuthenticatedLivestockRouteImport } from './routes/_authenticated/livestock'
@@ -37,6 +38,11 @@ const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedStatisticsRoute = AuthenticatedStatisticsRouteImport.update({
+  id: '/statistics',
+  path: '/statistics',
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedProjectsRoute = AuthenticatedProjectsRouteImport.update({
   id: '/projects',
@@ -108,6 +114,7 @@ export interface FileRoutesByFullPath {
   '/livestock': typeof AuthenticatedLivestockRoute
   '/milk': typeof AuthenticatedMilkRoute
   '/projects': typeof AuthenticatedProjectsRoute
+  '/statistics': typeof AuthenticatedStatisticsRoute
   '/animals/$id': typeof AuthenticatedAnimalsIdRoute
 }
 export interface FileRoutesByTo {
@@ -123,6 +130,7 @@ export interface FileRoutesByTo {
   '/livestock': typeof AuthenticatedLivestockRoute
   '/milk': typeof AuthenticatedMilkRoute
   '/projects': typeof AuthenticatedProjectsRoute
+  '/statistics': typeof AuthenticatedStatisticsRoute
   '/animals/$id': typeof AuthenticatedAnimalsIdRoute
 }
 export interface FileRoutesById {
@@ -140,6 +148,7 @@ export interface FileRoutesById {
   '/_authenticated/livestock': typeof AuthenticatedLivestockRoute
   '/_authenticated/milk': typeof AuthenticatedMilkRoute
   '/_authenticated/projects': typeof AuthenticatedProjectsRoute
+  '/_authenticated/statistics': typeof AuthenticatedStatisticsRoute
   '/_authenticated/animals/$id': typeof AuthenticatedAnimalsIdRoute
 }
 export interface FileRouteTypes {
@@ -157,6 +166,7 @@ export interface FileRouteTypes {
     | '/livestock'
     | '/milk'
     | '/projects'
+    | '/statistics'
     | '/animals/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -172,6 +182,7 @@ export interface FileRouteTypes {
     | '/livestock'
     | '/milk'
     | '/projects'
+    | '/statistics'
     | '/animals/$id'
   id:
     | '__root__'
@@ -188,6 +199,7 @@ export interface FileRouteTypes {
     | '/_authenticated/livestock'
     | '/_authenticated/milk'
     | '/_authenticated/projects'
+    | '/_authenticated/statistics'
     | '/_authenticated/animals/$id'
   fileRoutesById: FileRoutesById
 }
@@ -219,6 +231,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/statistics': {
+      id: '/_authenticated/statistics'
+      path: '/statistics'
+      fullPath: '/statistics'
+      preLoaderRoute: typeof AuthenticatedStatisticsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/projects': {
       id: '/_authenticated/projects'
@@ -322,6 +341,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedLivestockRoute: typeof AuthenticatedLivestockRoute
   AuthenticatedMilkRoute: typeof AuthenticatedMilkRoute
   AuthenticatedProjectsRoute: typeof AuthenticatedProjectsRoute
+  AuthenticatedStatisticsRoute: typeof AuthenticatedStatisticsRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -335,6 +355,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedLivestockRoute: AuthenticatedLivestockRoute,
   AuthenticatedMilkRoute: AuthenticatedMilkRoute,
   AuthenticatedProjectsRoute: AuthenticatedProjectsRoute,
+  AuthenticatedStatisticsRoute: AuthenticatedStatisticsRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
