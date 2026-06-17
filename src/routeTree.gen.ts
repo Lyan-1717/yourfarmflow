@@ -19,6 +19,7 @@ import { Route as AuthenticatedIncomeRouteImport } from './routes/_authenticated
 import { Route as AuthenticatedExpensesRouteImport } from './routes/_authenticated/expenses'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedCropsRouteImport } from './routes/_authenticated/crops'
+import { Route as AuthenticatedConstructionRouteImport } from './routes/_authenticated/construction'
 import { Route as AuthenticatedAnimalsRouteImport } from './routes/_authenticated/animals'
 import { Route as AuthenticatedActivitiesRouteImport } from './routes/_authenticated/activities'
 import { Route as AuthenticatedAnimalsIdRouteImport } from './routes/_authenticated/animals.$id'
@@ -72,6 +73,12 @@ const AuthenticatedCropsRoute = AuthenticatedCropsRouteImport.update({
   path: '/crops',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedConstructionRoute =
+  AuthenticatedConstructionRouteImport.update({
+    id: '/construction',
+    path: '/construction',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAnimalsRoute = AuthenticatedAnimalsRouteImport.update({
   id: '/animals',
   path: '/animals',
@@ -93,6 +100,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/activities': typeof AuthenticatedActivitiesRoute
   '/animals': typeof AuthenticatedAnimalsRouteWithChildren
+  '/construction': typeof AuthenticatedConstructionRoute
   '/crops': typeof AuthenticatedCropsRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/expenses': typeof AuthenticatedExpensesRoute
@@ -107,6 +115,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/activities': typeof AuthenticatedActivitiesRoute
   '/animals': typeof AuthenticatedAnimalsRouteWithChildren
+  '/construction': typeof AuthenticatedConstructionRoute
   '/crops': typeof AuthenticatedCropsRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/expenses': typeof AuthenticatedExpensesRoute
@@ -123,6 +132,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/_authenticated/activities': typeof AuthenticatedActivitiesRoute
   '/_authenticated/animals': typeof AuthenticatedAnimalsRouteWithChildren
+  '/_authenticated/construction': typeof AuthenticatedConstructionRoute
   '/_authenticated/crops': typeof AuthenticatedCropsRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/expenses': typeof AuthenticatedExpensesRoute
@@ -139,6 +149,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/activities'
     | '/animals'
+    | '/construction'
     | '/crops'
     | '/dashboard'
     | '/expenses'
@@ -153,6 +164,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/activities'
     | '/animals'
+    | '/construction'
     | '/crops'
     | '/dashboard'
     | '/expenses'
@@ -168,6 +180,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/_authenticated/activities'
     | '/_authenticated/animals'
+    | '/_authenticated/construction'
     | '/_authenticated/crops'
     | '/_authenticated/dashboard'
     | '/_authenticated/expenses'
@@ -256,6 +269,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCropsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/construction': {
+      id: '/_authenticated/construction'
+      path: '/construction'
+      fullPath: '/construction'
+      preLoaderRoute: typeof AuthenticatedConstructionRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/animals': {
       id: '/_authenticated/animals'
       path: '/animals'
@@ -294,6 +314,7 @@ const AuthenticatedAnimalsRouteWithChildren =
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedActivitiesRoute: typeof AuthenticatedActivitiesRoute
   AuthenticatedAnimalsRoute: typeof AuthenticatedAnimalsRouteWithChildren
+  AuthenticatedConstructionRoute: typeof AuthenticatedConstructionRoute
   AuthenticatedCropsRoute: typeof AuthenticatedCropsRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedExpensesRoute: typeof AuthenticatedExpensesRoute
@@ -306,6 +327,7 @@ interface AuthenticatedRouteRouteChildren {
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedActivitiesRoute: AuthenticatedActivitiesRoute,
   AuthenticatedAnimalsRoute: AuthenticatedAnimalsRouteWithChildren,
+  AuthenticatedConstructionRoute: AuthenticatedConstructionRoute,
   AuthenticatedCropsRoute: AuthenticatedCropsRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedExpensesRoute: AuthenticatedExpensesRoute,
