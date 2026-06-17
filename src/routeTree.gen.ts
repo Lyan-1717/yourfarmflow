@@ -13,6 +13,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedStatisticsRouteImport } from './routes/_authenticated/statistics'
+import { Route as AuthenticatedReportsRouteImport } from './routes/_authenticated/reports'
 import { Route as AuthenticatedProjectsRouteImport } from './routes/_authenticated/projects'
 import { Route as AuthenticatedProjectionsRouteImport } from './routes/_authenticated/projections'
 import { Route as AuthenticatedMilkRouteImport } from './routes/_authenticated/milk'
@@ -43,6 +44,11 @@ const IndexRoute = IndexRouteImport.update({
 const AuthenticatedStatisticsRoute = AuthenticatedStatisticsRouteImport.update({
   id: '/statistics',
   path: '/statistics',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedReportsRoute = AuthenticatedReportsRouteImport.update({
+  id: '/reports',
+  path: '/reports',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedProjectsRoute = AuthenticatedProjectsRouteImport.update({
@@ -122,6 +128,7 @@ export interface FileRoutesByFullPath {
   '/milk': typeof AuthenticatedMilkRoute
   '/projections': typeof AuthenticatedProjectionsRoute
   '/projects': typeof AuthenticatedProjectsRoute
+  '/reports': typeof AuthenticatedReportsRoute
   '/statistics': typeof AuthenticatedStatisticsRoute
   '/animals/$id': typeof AuthenticatedAnimalsIdRoute
 }
@@ -139,6 +146,7 @@ export interface FileRoutesByTo {
   '/milk': typeof AuthenticatedMilkRoute
   '/projections': typeof AuthenticatedProjectionsRoute
   '/projects': typeof AuthenticatedProjectsRoute
+  '/reports': typeof AuthenticatedReportsRoute
   '/statistics': typeof AuthenticatedStatisticsRoute
   '/animals/$id': typeof AuthenticatedAnimalsIdRoute
 }
@@ -158,6 +166,7 @@ export interface FileRoutesById {
   '/_authenticated/milk': typeof AuthenticatedMilkRoute
   '/_authenticated/projections': typeof AuthenticatedProjectionsRoute
   '/_authenticated/projects': typeof AuthenticatedProjectsRoute
+  '/_authenticated/reports': typeof AuthenticatedReportsRoute
   '/_authenticated/statistics': typeof AuthenticatedStatisticsRoute
   '/_authenticated/animals/$id': typeof AuthenticatedAnimalsIdRoute
 }
@@ -177,6 +186,7 @@ export interface FileRouteTypes {
     | '/milk'
     | '/projections'
     | '/projects'
+    | '/reports'
     | '/statistics'
     | '/animals/$id'
   fileRoutesByTo: FileRoutesByTo
@@ -194,6 +204,7 @@ export interface FileRouteTypes {
     | '/milk'
     | '/projections'
     | '/projects'
+    | '/reports'
     | '/statistics'
     | '/animals/$id'
   id:
@@ -212,6 +223,7 @@ export interface FileRouteTypes {
     | '/_authenticated/milk'
     | '/_authenticated/projections'
     | '/_authenticated/projects'
+    | '/_authenticated/reports'
     | '/_authenticated/statistics'
     | '/_authenticated/animals/$id'
   fileRoutesById: FileRoutesById
@@ -250,6 +262,13 @@ declare module '@tanstack/react-router' {
       path: '/statistics'
       fullPath: '/statistics'
       preLoaderRoute: typeof AuthenticatedStatisticsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/reports': {
+      id: '/_authenticated/reports'
+      path: '/reports'
+      fullPath: '/reports'
+      preLoaderRoute: typeof AuthenticatedReportsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/projects': {
@@ -362,6 +381,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedMilkRoute: typeof AuthenticatedMilkRoute
   AuthenticatedProjectionsRoute: typeof AuthenticatedProjectionsRoute
   AuthenticatedProjectsRoute: typeof AuthenticatedProjectsRoute
+  AuthenticatedReportsRoute: typeof AuthenticatedReportsRoute
   AuthenticatedStatisticsRoute: typeof AuthenticatedStatisticsRoute
 }
 
@@ -377,6 +397,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedMilkRoute: AuthenticatedMilkRoute,
   AuthenticatedProjectionsRoute: AuthenticatedProjectionsRoute,
   AuthenticatedProjectsRoute: AuthenticatedProjectsRoute,
+  AuthenticatedReportsRoute: AuthenticatedReportsRoute,
   AuthenticatedStatisticsRoute: AuthenticatedStatisticsRoute,
 }
 
