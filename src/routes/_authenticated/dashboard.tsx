@@ -24,7 +24,7 @@ function Dashboard() {
     queryKey: ["dashboard", projectId, ptype],
     queryFn: async () => {
       const recentTable = isLivestock ? "livestock_activities" : "activities";
-      const [exp, inc, crops, livestock, acts] = await Promise.all([
+      const [exp, inc, crops, livestock, acts, regAnimals] = await Promise.all([
         supabase.from("expenses").select("amount").eq("project_id", projectId!),
         supabase.from("income").select("amount").eq("project_id", projectId!),
         isLivestock
@@ -34,13 +34,20 @@ function Dashboard() {
           ? supabase.from("livestock").select("id,quantity").eq("project_id", projectId!)
           : Promise.resolve({ data: [] as any[] }),
         supabase.from(recentTable).select("id,type,activity_date,notes").eq("project_id", projectId!).order("activity_date", { ascending: false }).limit(5),
+        isLivestock
+          ? supabase.from("animals").select("estimated_value,animal_type,status").eq("project_id", projectId!)
+          : Promise.resolve({ data: [] as any[] }),
       ]);
       const totalExp = (exp.data ?? []).reduce((s, r: any) => s + Number(r.amount), 0);
       const totalInc = (inc.data ?? []).reduce((s, r: any) => s + Number(r.amount), 0);
       const active = (crops.data ?? []).filter((c: any) => c.status === "growing").length;
       const groups = (livestock.data ?? []).length;
       const animals = (livestock.data ?? []).reduce((s: number, r: any) => s + Number(r.quantity || 0), 0);
-      return { totalExp, totalInc, profit: totalInc - totalExp, active, groups, animals, recent: acts.data ?? [] };
+      const live = (regAnimals.data ?? []).filter((a: any) => a.status !== "Sold" && a.status !== "Deceased");
+      const netWorth = live.reduce((s: number, a: any) => s + Number(a.estimated_value || 0), 0);
+      const byType: Record<string, number> = {};
+      live.forEach((a: any) => { byType[a.animal_type] = (byType[a.animal_type] || 0) + Number(a.estimated_value || 0); });
+      return { totalExp, totalInc, profit: totalInc - totalExp, active, groups, animals, recent: acts.data ?? [], netWorth, byType };
     },
   });
 
