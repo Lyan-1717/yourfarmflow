@@ -18,6 +18,7 @@ import { Route as AuthenticatedProjectsRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedProjectionsRouteImport } from './routes/_authenticated/projections'
 import { Route as AuthenticatedMilkRouteImport } from './routes/_authenticated/milk'
 import { Route as AuthenticatedLivestockRouteImport } from './routes/_authenticated/livestock'
+import { Route as AuthenticatedInventoryRouteImport } from './routes/_authenticated/inventory'
 import { Route as AuthenticatedIncomeRouteImport } from './routes/_authenticated/income'
 import { Route as AuthenticatedExpensesRouteImport } from './routes/_authenticated/expenses'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
@@ -72,6 +73,11 @@ const AuthenticatedLivestockRoute = AuthenticatedLivestockRouteImport.update({
   path: '/livestock',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedInventoryRoute = AuthenticatedInventoryRouteImport.update({
+  id: '/inventory',
+  path: '/inventory',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedIncomeRoute = AuthenticatedIncomeRouteImport.update({
   id: '/income',
   path: '/income',
@@ -124,6 +130,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/expenses': typeof AuthenticatedExpensesRoute
   '/income': typeof AuthenticatedIncomeRoute
+  '/inventory': typeof AuthenticatedInventoryRoute
   '/livestock': typeof AuthenticatedLivestockRoute
   '/milk': typeof AuthenticatedMilkRoute
   '/projections': typeof AuthenticatedProjectionsRoute
@@ -142,6 +149,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/expenses': typeof AuthenticatedExpensesRoute
   '/income': typeof AuthenticatedIncomeRoute
+  '/inventory': typeof AuthenticatedInventoryRoute
   '/livestock': typeof AuthenticatedLivestockRoute
   '/milk': typeof AuthenticatedMilkRoute
   '/projections': typeof AuthenticatedProjectionsRoute
@@ -162,6 +170,7 @@ export interface FileRoutesById {
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/expenses': typeof AuthenticatedExpensesRoute
   '/_authenticated/income': typeof AuthenticatedIncomeRoute
+  '/_authenticated/inventory': typeof AuthenticatedInventoryRoute
   '/_authenticated/livestock': typeof AuthenticatedLivestockRoute
   '/_authenticated/milk': typeof AuthenticatedMilkRoute
   '/_authenticated/projections': typeof AuthenticatedProjectionsRoute
@@ -182,6 +191,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/expenses'
     | '/income'
+    | '/inventory'
     | '/livestock'
     | '/milk'
     | '/projections'
@@ -200,6 +210,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/expenses'
     | '/income'
+    | '/inventory'
     | '/livestock'
     | '/milk'
     | '/projections'
@@ -219,6 +230,7 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard'
     | '/_authenticated/expenses'
     | '/_authenticated/income'
+    | '/_authenticated/inventory'
     | '/_authenticated/livestock'
     | '/_authenticated/milk'
     | '/_authenticated/projections'
@@ -299,6 +311,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedLivestockRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/inventory': {
+      id: '/_authenticated/inventory'
+      path: '/inventory'
+      fullPath: '/inventory'
+      preLoaderRoute: typeof AuthenticatedInventoryRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/income': {
       id: '/_authenticated/income'
       path: '/income'
@@ -377,6 +396,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedExpensesRoute: typeof AuthenticatedExpensesRoute
   AuthenticatedIncomeRoute: typeof AuthenticatedIncomeRoute
+  AuthenticatedInventoryRoute: typeof AuthenticatedInventoryRoute
   AuthenticatedLivestockRoute: typeof AuthenticatedLivestockRoute
   AuthenticatedMilkRoute: typeof AuthenticatedMilkRoute
   AuthenticatedProjectionsRoute: typeof AuthenticatedProjectionsRoute
@@ -393,6 +413,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedExpensesRoute: AuthenticatedExpensesRoute,
   AuthenticatedIncomeRoute: AuthenticatedIncomeRoute,
+  AuthenticatedInventoryRoute: AuthenticatedInventoryRoute,
   AuthenticatedLivestockRoute: AuthenticatedLivestockRoute,
   AuthenticatedMilkRoute: AuthenticatedMilkRoute,
   AuthenticatedProjectionsRoute: AuthenticatedProjectionsRoute,
