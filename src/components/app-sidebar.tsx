@@ -1,7 +1,7 @@
 import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
 import {
   LayoutDashboard, Sprout, Activity, Receipt, TrendingUp, FolderKanban, LogOut, Beef,
-  Users, Milk, BarChart3, LineChart, HardHat, FileBarChart,
+  Users, Milk, BarChart3, LineChart, HardHat, FileBarChart, Package,
 } from "lucide-react";
 import {
   Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent,
@@ -29,6 +29,7 @@ export function AppSidebar() {
     { title: "Projections", url: "/projections", icon: LineChart, show: t === "livestock" },
     { title: "Activities", url: "/activities", icon: Activity, show: t === "farm" },
     { title: "Construction", url: "/construction", icon: HardHat, show: t === "building" },
+    { title: "Inventory", url: "/inventory", icon: Package, show: !!t },
     { title: "Expenses", url: "/expenses", icon: Receipt, show: true },
     { title: "Income", url: "/income", icon: TrendingUp, show: true },
     { title: "Reports", url: "/reports", icon: FileBarChart, show: true },
