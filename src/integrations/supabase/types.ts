@@ -155,6 +155,7 @@ export type Database = {
       }
       animals: {
         Row: {
+          about: string | null
           animal_type: string
           breed: string | null
           created_at: string
@@ -166,6 +167,7 @@ export type Database = {
           mother_id: string | null
           name: string | null
           notes: string | null
+          photo_path: string | null
           project_id: string
           status: string
           tag_number: string | null
@@ -173,6 +175,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          about?: string | null
           animal_type: string
           breed?: string | null
           created_at?: string
@@ -184,6 +187,7 @@ export type Database = {
           mother_id?: string | null
           name?: string | null
           notes?: string | null
+          photo_path?: string | null
           project_id: string
           status?: string
           tag_number?: string | null
@@ -191,6 +195,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          about?: string | null
           animal_type?: string
           breed?: string | null
           created_at?: string
@@ -202,6 +207,7 @@ export type Database = {
           mother_id?: string | null
           name?: string | null
           notes?: string | null
+          photo_path?: string | null
           project_id?: string
           status?: string
           tag_number?: string | null
@@ -409,6 +415,56 @@ export type Database = {
           },
         ]
       }
+      documents: {
+        Row: {
+          category: string
+          created_at: string
+          description: string | null
+          id: string
+          mime_type: string | null
+          name: string
+          project_id: string
+          size_bytes: number | null
+          storage_path: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          mime_type?: string | null
+          name: string
+          project_id: string
+          size_bytes?: number | null
+          storage_path: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          mime_type?: string | null
+          name?: string
+          project_id?: string
+          size_bytes?: number | null
+          storage_path?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "documents_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       expenses: {
         Row: {
           activity_id: string | null
@@ -523,6 +579,100 @@ export type Database = {
             columns: ["project_id"]
             isOneToOne: false
             referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      inventory_items: {
+        Row: {
+          category: string
+          cost: number
+          created_at: string
+          id: string
+          low_stock_threshold: number
+          name: string
+          notes: string | null
+          project_id: string
+          purchase_date: string | null
+          quantity_purchased: number
+          unit: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          category: string
+          cost?: number
+          created_at?: string
+          id?: string
+          low_stock_threshold?: number
+          name: string
+          notes?: string | null
+          project_id: string
+          purchase_date?: string | null
+          quantity_purchased?: number
+          unit?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          category?: string
+          cost?: number
+          created_at?: string
+          id?: string
+          low_stock_threshold?: number
+          name?: string
+          notes?: string | null
+          project_id?: string
+          purchase_date?: string | null
+          quantity_purchased?: number
+          unit?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inventory_items_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      inventory_usage: {
+        Row: {
+          created_at: string
+          id: string
+          item_id: string
+          notes: string | null
+          quantity_used: number
+          used_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          item_id: string
+          notes?: string | null
+          quantity_used: number
+          used_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          item_id?: string
+          notes?: string | null
+          quantity_used?: number
+          used_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inventory_usage_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_items"
             referencedColumns: ["id"]
           },
         ]
