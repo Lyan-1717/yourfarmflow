@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -10,7 +10,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { ArrowLeft, Activity } from "lucide-react";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { ArrowLeft, Activity, Pencil, Upload, ImageIcon } from "lucide-react";
 import { toast } from "sonner";
 import { formatRWF, formatDate } from "@/lib/format";
 
@@ -50,6 +51,15 @@ function AnimalProfile() {
     queryFn: async () => (await supabase.from("milk_records").select("*").eq("animal_id", id).order("record_date", { ascending: false })).data ?? [],
   });
 
+  const { data: photoUrl } = useQuery({
+    queryKey: ["animal_photo", id, animal?.photo_path],
+    enabled: !!animal?.photo_path,
+    queryFn: async () => {
+      const { data } = await supabase.storage.from("animal-photos").createSignedUrl(animal!.photo_path as string, 3600);
+      return data?.signedUrl ?? null;
+    },
+  });
+
   // status change
   const [newStatus, setNewStatus] = useState("Healthy");
   const [statusNote, setStatusNote] = useState("");
@@ -65,6 +75,10 @@ function AnimalProfile() {
   // milk
   const [mDate, setMDate] = useState(new Date().toISOString().slice(0, 10));
   const [mLiters, setMLiters] = useState("");
+  // edit dialog
+  const [editOpen, setEditOpen] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
 
   if (!animal) return <div className="p-6 text-sm text-muted-foreground">Loading…</div>;
 
@@ -128,6 +142,52 @@ function AnimalProfile() {
   const totalMilk = milk.reduce((s: number, m: any) => s + Number(m.liters || 0), 0);
   const dailyAvg = milk.length ? totalMilk / new Set(milk.map((m: any) => m.record_date)).size : 0;
 
+  async function saveProfile(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const fd = new FormData(e.currentTarget);
+    const payload = {
+      name: (fd.get("name") as string) || null,
+      tag_number: (fd.get("tag_number") as string) || null,
+      breed: (fd.get("breed") as string) || null,
+      gender: (fd.get("gender") as string) || null,
+      date_of_birth: (fd.get("date_of_birth") as string) || null,
+      estimated_value: Number(fd.get("estimated_value") || 0),
+      about: (fd.get("about") as string) || null,
+      notes: (fd.get("notes") as string) || null,
+    };
+    const { error } = await supabase.from("animals").update(payload).eq("id", id);
+    if (error) return toast.error(error.message);
+    toast.success("Profile updated");
+    setEditOpen(false);
+    qc.invalidateQueries({ queryKey: ["animal", id] });
+    qc.invalidateQueries({ queryKey: ["animals"] });
+  }
+
+  async function uploadPhoto(file: File) {
+    setUploading(true);
+    try {
+      const { data: u } = await supabase.auth.getUser();
+      if (!u.user) throw new Error("Not signed in");
+      const ext = file.name.split(".").pop() || "jpg";
+      const path = `${u.user.id}/${id}/${Date.now()}.${ext}`;
+      const up = await supabase.storage.from("animal-photos").upload(path, file, { upsert: false, contentType: file.type });
+      if (up.error) throw up.error;
+      // delete old
+      if (animal?.photo_path) {
+        await supabase.storage.from("animal-photos").remove([animal.photo_path]);
+      }
+      const { error } = await supabase.from("animals").update({ photo_path: path }).eq("id", id);
+      if (error) throw error;
+      toast.success("Photo updated");
+      qc.invalidateQueries({ queryKey: ["animal", id] });
+    } catch (err: any) {
+      toast.error(err.message ?? "Upload failed");
+    } finally {
+      setUploading(false);
+      if (fileRef.current) fileRef.current.value = "";
+    }
+  }
+
   return (
     <div className="max-w-5xl mx-auto space-y-6">
       <div className="flex items-center justify-between">
@@ -136,8 +196,58 @@ function AnimalProfile() {
           <h2 className="text-2xl font-bold mt-2">{animal.tag_number || animal.name || animal.id.slice(0,8)}</h2>
           <p className="text-muted-foreground text-sm">{animal.animal_type} · {animal.gender ?? "—"} · {animal.breed ?? "—"}</p>
         </div>
-        <span className="px-3 py-1 rounded bg-primary/10 text-primary text-sm font-medium">{animal.status}</span>
+        <div className="flex items-center gap-2">
+          <span className="px-3 py-1 rounded bg-primary/10 text-primary text-sm font-medium">{animal.status}</span>
+          <Dialog open={editOpen} onOpenChange={setEditOpen}>
+            <DialogTrigger asChild>
+              <Button variant="outline" size="sm"><Pencil className="h-3 w-3 mr-1" /> Edit</Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-lg">
+              <DialogHeader><DialogTitle>Edit animal profile</DialogTitle></DialogHeader>
+              <form onSubmit={saveProfile} className="grid gap-3">
+                <div className="grid grid-cols-2 gap-3">
+                  <div><Label>Name</Label><Input name="name" defaultValue={animal.name ?? ""} /></div>
+                  <div><Label>Tag #</Label><Input name="tag_number" defaultValue={animal.tag_number ?? ""} /></div>
+                  <div><Label>Breed</Label><Input name="breed" defaultValue={animal.breed ?? ""} /></div>
+                  <div><Label>Gender</Label>
+                    <select name="gender" defaultValue={animal.gender ?? ""} className="w-full h-9 border rounded px-2 bg-background">
+                      <option value="">—</option><option value="Male">Male</option><option value="Female">Female</option>
+                    </select>
+                  </div>
+                  <div><Label>Date of birth</Label><Input type="date" name="date_of_birth" defaultValue={animal.date_of_birth ?? ""} /></div>
+                  <div><Label>Estimated value (RWF)</Label><Input type="number" name="estimated_value" defaultValue={animal.estimated_value ?? 0} /></div>
+                </div>
+                <div><Label>About</Label><Textarea name="about" defaultValue={animal.about ?? ""} rows={3} placeholder="Background, lineage, personality…" /></div>
+                <div><Label>Notes</Label><Textarea name="notes" defaultValue={animal.notes ?? ""} rows={2} /></div>
+                <DialogFooter><Button type="submit">Save</Button></DialogFooter>
+              </form>
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
+
+      <Card>
+        <CardContent className="pt-6 flex flex-col sm:flex-row gap-4">
+          <div className="w-full sm:w-48 shrink-0">
+            <div className="aspect-square w-full rounded-lg border bg-muted flex items-center justify-center overflow-hidden">
+              {photoUrl ? (
+                <img src={photoUrl} alt={animal.name ?? "Animal"} className="w-full h-full object-cover" />
+              ) : (
+                <ImageIcon className="h-10 w-10 text-muted-foreground" />
+              )}
+            </div>
+            <input ref={fileRef} type="file" accept="image/*" hidden onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadPhoto(f); }} />
+            <Button type="button" variant="outline" size="sm" className="w-full mt-2" disabled={uploading} onClick={() => fileRef.current?.click()}>
+              <Upload className="h-3 w-3 mr-1" /> {uploading ? "Uploading…" : animal.photo_path ? "Replace photo" : "Upload photo"}
+            </Button>
+          </div>
+          <div className="flex-1">
+            <h3 className="font-semibold mb-1">About</h3>
+            <p className="text-sm text-muted-foreground whitespace-pre-wrap">{animal.about || "No description yet. Click Edit to add one."}</p>
+            {animal.notes && (<><h3 className="font-semibold mt-3 mb-1">Notes</h3><p className="text-sm text-muted-foreground whitespace-pre-wrap">{animal.notes}</p></>)}
+          </div>
+        </CardContent>
+      </Card>
 
       <div className="grid gap-4 sm:grid-cols-4">
         <Card><CardHeader className="pb-2"><CardTitle className="text-xs text-muted-foreground">Estimated value</CardTitle></CardHeader><CardContent className="text-lg font-bold">{formatRWF(animal.estimated_value)}</CardContent></Card>
